@@ -1,0 +1,50 @@
+# Vagrant local state
+.vagrant/
+
+# Virtual machine images and exported appliances
+*.box
+*.ova
+*.ovf
+*.vdi
+*.vmdk
+*.vhd
+*.vhdx
+
+# Vagrant logs and crash/debug output
+vagrant.log
+*.log
+
+# Ansible runtime artifacts
+*.retry
+.ansible/
+ansible_cache/
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Local environment and secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE metadata
+.vscode/
+.idea/
+*.swp
+*.swo
