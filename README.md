@@ -15,3 +15,14 @@ The project focuses on foundational Linux administration, SSH-based management, 
 - Validate SSH access from the controller to the managed node.
 - Run Ansible ad hoc commands and a baseline playbook.
 - Document build steps, validation evidence, and lessons learned.
+
+## Repository Structure
+
+## Architecture
+
+## Prerequisites
+
+## Build Workflow
+
+## Validation Plan
+
