@@ -15,11 +15,7 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
   #   # Display the VirtualBox GUI when booting the machine
      vb.gui = false
-     vb.cpus = 2
    end
-   config.vm.provision "shell", inline: <<-SHELL
-      echo "Global shell provisioning hook executing"
-   SHELL
 
     managed = [
     { name: "managed-node-01", ip: "192.168.56.11", memory: 1024, cpus: 1 }
@@ -29,7 +25,7 @@ Vagrant.configure("2") do |config|
       node.vm.hostname = srv[:name]
       node.vm.network "private_network", ip: srv[:ip]
       node.vm.provider "virtualbox" do |vb|
-                vb.name=srv[:name]
+                vb.name = srv[:name]
                 vb.memory = srv[:memory]
                 vb.cpus = srv[:cpus]
       end
@@ -43,8 +39,9 @@ Vagrant.configure("2") do |config|
       controller.vm.hostname = "ansible-controller"
       controller.vm.network "private_network", ip: "192.168.56.10"
       controller.vm.provider "virtualbox" do |vb|
-                vb.name="ansible-controller"
+                vb.name = "ansible-controller"
                 vb.memory = 2048
+                vb.cpus = 2
       end
       controller.vm.provision "shell", inline: <<-SHELL
               echo "Ansible Controller shell provisioning hook executed"
