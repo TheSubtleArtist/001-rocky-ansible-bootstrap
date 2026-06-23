@@ -6,7 +6,7 @@
 #############
 
 BOX_IMAGE="generic/rocky9"
-HOSTONLY_NAME="VirtualBox Host-Only Ethernet Adapter"
+# HOSTONLY_NAME="VirtualBox Host-Only Ethernet Adapter"
 
 Vagrant.configure("2") do |config|
 
@@ -22,15 +22,16 @@ Vagrant.configure("2") do |config|
    SHELL
 
     managed = [
-    { name: "managed1", ip: "192.168.56.11", memory: 3072, disk_gb: 30 }
+    { name: "managed-node-1", ip: "192.168.56.11", memory: 1024, disk_gb: 30 }
     ]
   managed.each do |srv|
     config.vm.define srv[:name] do |node|
       node.vm.hostname = srv[:name]
-      node.vm.network "private_network", ip: srv[:ip], name: HOSTONLY_NAME
+      node.vm.network "private_network", ip: srv[:ip]
       node.vm.provider "virtualbox" do |vb|
                 vb.name=srv[:name]
                 vb.memory = srv[:memory]
+                vb.disk = srv[:disk_gb]
       end
       node.vm.provision "shell", inline: <<-SHELL
               echo "Managed node shell provisioning hook executed"
@@ -38,15 +39,16 @@ Vagrant.configure("2") do |config|
     end
   end
 
-   config.vm.define "controller" do |controller|
-      controller.vm.hostname = "controller"
-      controller.vm.network "private_network", ip: "192.168.56.10", name: HOSTONLY_NAME
+   config.vm.define "ansible-controller" do |controller|
+      controller.vm.hostname = "ansible-controller"
+      controller.vm.network "private_network", ip: "192.168.56.10"
       controller.vm.provider "virtualbox" do |vb|
-                vb.name="controller"
-                vb.memory = 4096
+                vb.name="ansible-controller"
+                vb.memory = 2048
+                vb.disk = 30
       end
       controller.vm.provision "shell", inline: <<-SHELL
-              echo "Controller shell provisioning hook executed"
+              echo "Ansible Controller shell provisioning hook executed"
       SHELL
     end
 
