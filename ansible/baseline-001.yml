@@ -1,43 +1,31 @@
 ---
-
-- name: Update DNF package metadata
+- name: Apply common baseline to lab systems
   hosts: lab
   become: true
   tasks:
     - name: Update DNF package metadata
-      dnf:
-        update_cache: yes
-    - name: Upgrade all packages to the latest version
-      dnf:
-        name: '*'
+      ansible.builtin.dnf:
+        update_cache: true
+
+    - name: Upgrade all installed packages
+      ansible.builtin.dnf:
+        name: "*"
         state: latest
-    - name: Remove unused packages
-      dnf:
-        autoremove: yes
-    - name: Install Python 3 and pip
-      dnf:
+
+    - name: Ensure common lab packages are installed
+      ansible.builtin.dnf:
         name:
           - python3
           - python3-pip
-        state: present
-    - name: Install basic administration tools
-      dnf:
-        name:
-          - vim
           - nano
+          - tree
+          - git
         state: present
 
-- name: Install Managed Node Baseline Packages
+- name: Validate managed node baseline
   hosts: managed
   become: true
   tasks:
-    - name: Install basic administration tools
-      dnf:
-        name:
-          - vim
-          - nano
-          - git
-        state: present
     - name: Confirm managed node baseline completed
       ansible.builtin.debug:
         msg: "Managed node baseline completed successfully."

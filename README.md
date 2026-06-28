@@ -54,6 +54,15 @@ The project focuses on foundational Linux administration, SSH-based management, 
 
 ## Project Architecture
 
+Windows 11 Host
+└── Vagrant + VirtualBox
+    ├── ansible-controller
+    │   └── 192.168.56.10
+    └── managed-node-01
+        └── 192.168.56.11
+
+ansible-controller → SSH / Ansible → managed-node-01
+
 
 ## Build and Validation Workflow
 
