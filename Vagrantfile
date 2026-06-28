@@ -43,7 +43,7 @@ Vagrant.configure("2") do |config|
     { name: "managed-node-01", ip: "192.168.56.11", memory: 1024, cpus: 1 }
     ]
   managed.each do |srv|
-    config.vm.define srv[:name], autostart: false do |node|
+    config.vm.define srv[:name], autostart: true do |node|
       node.vm.hostname = srv[:name]
       node.vm.network "private_network", ip: srv[:ip]
       node.vm.provider "virtualbox" do |vb|

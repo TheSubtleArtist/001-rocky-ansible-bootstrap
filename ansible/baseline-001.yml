@@ -14,11 +14,6 @@
     - name: Remove unused packages
       dnf:
         autoremove: yes
-
-- name: Install Managed Node Baseline Packages
-  hosts: managed
-  become: true
-  tasks:
     - name: Install Python 3 and pip
       dnf:
         name:
@@ -29,8 +24,18 @@
       dnf:
         name:
           - vim
-          - sudo
-          - tree
+          - nano
+        state: present
+
+- name: Install Managed Node Baseline Packages
+  hosts: managed
+  become: true
+  tasks:
+    - name: Install basic administration tools
+      dnf:
+        name:
+          - vim
+          - nano
           - git
         state: present
     - name: Confirm managed node baseline completed
