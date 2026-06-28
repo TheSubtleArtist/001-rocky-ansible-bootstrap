@@ -1,0 +1,101 @@
+
+PLAY [Validate inventory structure] ********************************************
+
+TASK [Confirm controller group exists] *****************************************
+ok: [ansible-controller] => {
+    "changed": false,
+    "msg": "Controller inventory group exists."
+}
+
+TASK [Confirm managed group exists] ********************************************
+ok: [ansible-controller] => {
+    "changed": false,
+    "msg": "Managed inventory group exists."
+}
+
+TASK [Confirm lab group exists] ************************************************
+ok: [ansible-controller] => {
+    "changed": false,
+    "msg": "Lab inventory group exists."
+}
+
+PLAY [Validate Ansible controller] *********************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [ansible-controller]
+
+TASK [Confirm Ansible is available on the controller] **************************
+ok: [ansible-controller]
+
+TASK [Display Ansible version result] ******************************************
+ok: [ansible-controller] => {
+    "ansible_version_result.stdout_lines": [
+        "ansible [core 2.15.13]",
+        "  config file = None",
+        "  configured module search path = ['/home/vagrant/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']",
+        "  ansible python module location = /home/vagrant/.local/lib/python3.9/site-packages/ansible",
+        "  ansible collection location = /home/vagrant/.ansible/collections:/usr/share/ansible/collections",
+        "  executable location = /home/vagrant/.local/bin/ansible",
+        "  python version = 3.9.25 (main, Apr 17 2026, 00:00:00) [GCC 11.5.0 20240719 (Red Hat 11.5.0-14)] (/usr/bin/python3)",
+        "  jinja version = 3.1.6",
+        "  libyaml = True"
+    ]
+}
+
+TASK [Confirm lab private key exists on controller] ****************************
+ok: [ansible-controller]
+
+TASK [Assert lab private key exists] *******************************************
+ok: [ansible-controller] => {
+    "changed": false,
+    "msg": "The Ansible lab private key exists on the controller."
+}
+
+TASK [Confirm controller can reach managed node over private network] **********
+ok: [ansible-controller]
+
+TASK [Display private network ping result] *************************************
+ok: [ansible-controller] => {
+    "private_network_ping.stdout_lines": [
+        "PING 192.168.56.11 (192.168.56.11) 56(84) bytes of data.",
+        "64 bytes from 192.168.56.11: icmp_seq=1 ttl=64 time=0.892 ms",
+        "64 bytes from 192.168.56.11: icmp_seq=2 ttl=64 time=2.36 ms",
+        "64 bytes from 192.168.56.11: icmp_seq=3 ttl=64 time=1.44 ms",
+        "64 bytes from 192.168.56.11: icmp_seq=4 ttl=64 time=1.51 ms",
+        "",
+        "--- 192.168.56.11 ping statistics ---",
+        "4 packets transmitted, 4 received, 0% packet loss, time 3008ms",
+        "rtt min/avg/max/mdev = 0.892/1.551/2.357/0.523 ms"
+    ]
+}
+
+PLAY [Validate managed node] ***************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [managed-node-01]
+
+TASK [Confirm managed node is Rocky Linux 9] ***********************************
+ok: [managed-node-01] => {
+    "changed": false,
+    "msg": "Managed node is running Rocky Linux 9."
+}
+
+TASK [Gather installed package facts] ******************************************
+ok: [managed-node-01]
+
+TASK [Confirm expected packages are installed] *********************************
+ok: [managed-node-01] => {
+    "changed": false,
+    "msg": "Expected baseline packages are installed."
+}
+
+TASK [Confirm managed node hostname] *******************************************
+ok: [managed-node-01] => {
+    "changed": false,
+    "msg": "Managed node hostname matches expected value."
+}
+
+PLAY RECAP *********************************************************************
+ansible-controller         : ok=10   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+managed-node-01            : ok=5    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

@@ -1,0 +1,100 @@
+---
+- name: Validate inventory structure
+  hosts: controller
+  gather_facts: false
+  tasks:
+    - name: Confirm controller group exists
+      ansible.builtin.assert:
+        that:
+          - groups['controller'] is defined
+          - groups['controller'] | length > 0
+        fail_msg: "The controller inventory group is missing or empty."
+        success_msg: "Controller inventory group exists."
+
+    - name: Confirm managed group exists
+      ansible.builtin.assert:
+        that:
+          - groups['managed'] is defined
+          - groups['managed'] | length > 0
+        fail_msg: "The managed inventory group is missing or empty."
+        success_msg: "Managed inventory group exists."
+
+    - name: Confirm lab group exists
+      ansible.builtin.assert:
+        that:
+          - groups['lab'] is defined
+          - groups['lab'] | length > 0
+        fail_msg: "The lab inventory group is missing or empty."
+        success_msg: "Lab inventory group exists."
+
+
+- name: Validate Ansible controller
+  hosts: controller
+  gather_facts: true
+  tasks:
+    - name: Confirm Ansible is available on the controller
+      ansible.builtin.command: ansible --version
+      register: ansible_version_result
+      changed_when: false
+
+    - name: Display Ansible version result
+      ansible.builtin.debug:
+        var: ansible_version_result.stdout_lines
+
+    - name: Confirm lab private key exists on controller
+      ansible.builtin.stat:
+        path: /home/vagrant/.ssh/ansible_lab
+      register: controller_private_key
+
+    - name: Assert lab private key exists
+      ansible.builtin.assert:
+        that:
+          - controller_private_key.stat.exists
+          - controller_private_key.stat.isreg
+        fail_msg: "The Ansible lab private key is missing from the controller."
+        success_msg: "The Ansible lab private key exists on the controller."
+
+    - name: Confirm controller can reach managed node over private network
+      ansible.builtin.command: ping -c 4 192.168.56.11
+      register: private_network_ping
+      changed_when: false
+
+    - name: Display private network ping result
+      ansible.builtin.debug:
+        var: private_network_ping.stdout_lines
+
+
+- name: Validate managed node
+  hosts: managed
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Confirm managed node is Rocky Linux 9
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == "Rocky"
+          - ansible_distribution_major_version == "9"
+        fail_msg: "Managed node is not running Rocky Linux 9."
+        success_msg: "Managed node is running Rocky Linux 9."
+
+    - name: Gather installed package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Confirm expected packages are installed
+      ansible.builtin.assert:
+        that:
+          - "'python3' in ansible_facts.packages"
+          - "'python3-pip' in ansible_facts.packages"
+          - "'nano' in ansible_facts.packages"
+          - "'tree' in ansible_facts.packages"
+          - "'git' in ansible_facts.packages"
+        fail_msg: "One or more expected baseline packages are missing."
+        success_msg: "Expected baseline packages are installed."
+
+    - name: Confirm managed node hostname
+      ansible.builtin.assert:
+        that:
+          - ansible_hostname == "managed-node-01"
+        fail_msg: "Managed node hostname does not match expected value."
+        success_msg: "Managed node hostname matches expected value."
