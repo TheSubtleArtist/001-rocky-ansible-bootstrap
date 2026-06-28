@@ -1,15 +1,5 @@
 # 001-rocky-ansible-bootstrap
 
-## Ongoing Work
-
-What is missing or incomplete:
-git 
-| Architecture         | Header exists, but empty | Add the two-VM model, roles, and private IP plan.                                                              |
-                                               |
-| Build Workflow       | Header exists, but empty | Add placeholder workflow: clone, validate tools, `vagrant up`, SSH, Ansible test.                              |
-| Validation Plan      | Header exists, but empty | Add expected validation checks before implementation.                                                          |
-                                                                  |
-
 ## Project Scope
 
 This project establishes the first repeatable local lab environment for the cloud security engineering portfolio. It uses Vagrant and Oracle VirtualBox to deploy two Rocky Linux 9 virtual machines: an Ansible controller and a managed node.
@@ -40,11 +30,15 @@ The project focuses on foundational Linux administration, SSH-based management, 
 001-ROCKY-ANSIBLE-BOOTSTRAP
 ├── ansible/
 │   ├── baseline-001.yml
-│   └── inventory-001.ini
+│   ├── inventory-001.ini
+│   └── validate-001.yml
+├── evidence/
+│   └── validation-001.output.txt
 ├── scripts/
 │   ├── bootstrap-ansible-controller.sh
 │   ├── deploy-private-key.sh
-│   └── deploy-public-key.sh
+│   ├── deploy-public-key.sh
+│   └── validation.sh
 ├── vagrant/.ssh
 │   ├── ansible_lab
 │   └── ansible_lab.pub
@@ -244,7 +238,7 @@ managed-node-01 | SUCCESS => {
 
 This confirms that the Ansible controller can reach and manage the target node over SSH using the generated lab key pair.
 
-### 12. Optional baseline playbook validation
+### 12. Run the baseline playbook
 
 Run the baseline playbook after basic Ansible connectivity succeeds.
 
@@ -254,7 +248,25 @@ ansible-playbook -i /vagrant/ansible/inventory-001.ini /vagrant/ansible/baseline
 
 Successful completion confirms that the controller can execute a playbook against the managed node.
 
+## 13. Run validation and capture evidence
+
+From the ansible-controller run `/vagrant/scripts/validation.sh`
+
+## Validation Evidence
+
+The validation script runs ansible/validate-001.yml and captures the output in evidence/validation-001-output.txt.
+
+- controller inventory group exists
+- managed inventory group exists
+- lab inventory group exists
+- Ansible is available on the controller
+- lab private key exists on the controller
+- controller can ping managed node over the private network
+- managed node is Rocky Linux 9
+- expected packages are installed
+- managed node hostname is managed-node-01
+
 ## Security Notes
 
-This project does not implement hardening. Later projects will introduce OpenSCAP, STIG-aligned baselines, hardening roles, validation evidence, and exception documentation.
+This project does not implement hardening.
 
