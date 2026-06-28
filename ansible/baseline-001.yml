@@ -18,6 +18,7 @@
 - name: Install Managed Node Baseline Packages
   hosts: managed
   become: true
+  tasks:
     - name: Install Python 3 and pip
       dnf:
         name:
