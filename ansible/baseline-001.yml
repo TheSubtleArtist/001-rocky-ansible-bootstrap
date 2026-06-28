@@ -1,7 +1,7 @@
 ---
 
 - name: Update DNF package metadata
-  hosts: managed
+  hosts: lab
   become: true
   tasks:
     - name: Update DNF package metadata
@@ -14,9 +14,10 @@
     - name: Remove unused packages
       dnf:
         autoremove: yes
-    - name: Clean up DNF cache
-      dnf:
-        clean: all
+
+- name: Install Managed Node Baseline Packages
+  hosts: managed
+  become: true
     - name: Install Python 3 and pip
       dnf:
         name:
