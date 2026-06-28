@@ -43,6 +43,7 @@ The project focuses on foundational Linux administration, SSH-based management, 
 │   └── inventory-001.ini
 ├── scripts/
 │   ├── bootstrap-ansible-controller.sh
+│   ├── deploy-private-key.sh
 │   └── deploy-public-key.sh
 ├── vagrant/.ssh
 │   ├── ansible_lab
