@@ -145,7 +145,7 @@ This confirms that the private host-only network between the controller and mana
 From inside the controller VM, confirm that Ansible can read the inventory file.
 
 ```bash
-ansible-inventory -i /vagrant/ansible/project-001.ini --list
+ansible-inventory -i /vagrant/ansible/inventory-001.ini --list
 ```
 
 Successful output confirms that the inventory file is valid and that Ansible can parse the managed node definition.
@@ -155,7 +155,7 @@ Successful output confirms that the inventory file is valid and that Ansible can
 Run an Ansible ping test against the managed node.
 
 ```bash
-ansible managed -i /vagrant/ansible/project-001.ini -m ping
+ansible managed -i /vagrant/ansible/inventory-001.ini -m ping
 ```
 
 Expected result:
@@ -168,19 +168,6 @@ managed-node-01 | SUCCESS => {
 ```
 
 This confirms that the Ansible controller can reach and manage the target node over SSH.
-
-### 9. Capture validation evidence
-
-As the project matures, record successful validation output in the `evidence/` directory.
-
-Evidence may include:
-
-* command output copied into markdown files
-* screenshots of successful validation commands
-* notes explaining errors encountered and how they were resolved
-* final confirmation that the lab can be rebuilt from a clean state
-
-The validation evidence should show that the repository is not just documented, but actually repeatable.
 
 ## Security Notes
 
