@@ -3,4 +3,5 @@ set -euo pipefail
 
 cd /vagrant
 mkdir -p evidence
-ANSIBLE_NOCOLOR=1 ansible-playbook -i ansible/inventory-001.ini ansible/validate-001.yml | tee evidence/validation-001-output.txt
+# Run the validation playbook and store the output in a file for later analysis
+ansible-playbook -i ansible/inventory-001.ini ansible/validate-001.yml | tee evidence/validation-001-output.txt
