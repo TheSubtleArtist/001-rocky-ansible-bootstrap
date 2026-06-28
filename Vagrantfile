@@ -18,7 +18,7 @@ SSH_KEY_PATH = File.join(__dir__, "vagrant", ".ssh")
 SSH_KEY_PRIVATE = File.join(SSH_KEY_PATH, "ansible_lab")
 SSH_KEY_PUBLIC = "#{SSH_KEY_PRIVATE}.pub"
 
-FileUtils.mkdir(SSH_KEY_PATH)
+FileUtils.mkdir_p(SSH_KEY_PATH)
 
 unless File.exist?(SSH_KEY_PRIVATE)
     system(
@@ -43,7 +43,7 @@ Vagrant.configure("2") do |config|
     { name: "managed-node-01", ip: "192.168.56.11", memory: 1024, cpus: 1 }
     ]
   managed.each do |srv|
-    config.vm.define srv[:name] do |node|
+    config.vm.define srv[:name], autostart: false do |node|
       node.vm.hostname = srv[:name]
       node.vm.network "private_network", ip: srv[:ip]
       node.vm.provider "virtualbox" do |vb|
@@ -51,17 +51,11 @@ Vagrant.configure("2") do |config|
         vb.memory = srv[:memory]
         vb.cpus = srv[:cpus]
       end
-      node.vm.provision "shell", inline: <<-SHELL
-        mkdir -p /home/vagrant/.ssh
-        chmod 700 /home/vagrant/.ssh
-        echo "Copying public key to managed node"
-        # Authorize the generated lab public key so the Ansible controller can SSH into this managed node as the vagrant user.
-        grep -qxF "#{File.read(SSH_KEY_PUBLIC).strip}" /home/vagrant/.ssh/authorized_keys || \
-        echo "#{File.read(SSH_KEY_PUBLIC).strip}" >> /home/vagrant/.ssh/authorized_keys
-        chmod 600 /home/vagrant/.ssh/authorized_keys
-        chown -R vagrant:vagrant /home/vagrant/.ssh
-        echo "Managed node shell provisioning hook executed"
-      SHELL
+      node.vm.provision "shell",
+      
+      echo: "Copying public key to managed node #{srv[:name]}...",
+      path: "scripts/deploy-public-key.sh",
+      echo: "Provisioning managed node #{srv[:name]} complete."
     end
   end
 

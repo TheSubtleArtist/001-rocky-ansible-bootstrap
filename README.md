@@ -42,14 +42,11 @@ The project focuses on foundational Linux administration, SSH-based management, 
 ├── .gitignore
 ├── Vagrantfile
 ├── ansible/
-│   ├── project-001.ini
-│   └── baseline-001.yml
-├── docs/
-│   ├── architecture/
-│   ├── decisions/
-│   ├── validation/
-│   └── lessons-learned/
-└── evidence/
+│   ├── baseline-001.yml
+│   └── inventory-001.ini
+└── vagrant/.ssh
+    ├── ansible_lab
+    └── ansible_lab.pub
 
 ## Project Architecture
 
