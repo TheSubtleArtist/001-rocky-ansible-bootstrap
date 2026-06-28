@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Script to deploy public key to managed nodes
+
 set -euo pipefail
 
 PUBLIC_KEY_SOURCE="/vagrant/vagrant/.ssh/ansible_lab.pub"
@@ -21,3 +23,5 @@ grep -qxF "$(cat "$PUBLIC_KEY_SOURCE")" "$AUTHORIZED_KEYS" || cat "$PUBLIC_KEY_S
 
 chmod 600 "$AUTHORIZED_KEYS"
 chown -R vagrant:vagrant /home/vagrant/.ssh
+
+echo "Managed node public key deployment complete"

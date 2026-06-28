@@ -38,15 +38,18 @@ The project focuses on foundational Linux administration, SSH-based management, 
 ## Repository Structure
 
 001-ROCKY-ANSIBLE-BOOTSTRAP
-├── README.md
-├── .gitignore
-├── Vagrantfile
 ├── ansible/
 │   ├── baseline-001.yml
 │   └── inventory-001.ini
-└── vagrant/.ssh
-    ├── ansible_lab
-    └── ansible_lab.pub
+├── scripts/
+│   ├── bootstrap-ansible-controller.sh
+│   └── deploy-public-key.sh
+├── vagrant/.ssh
+│   ├── ansible_lab
+│   └── ansible_lab.pub
+├── README.md
+├── .gitignore
+└── Vagrantfile
 
 ## Project Architecture
 

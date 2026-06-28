@@ -52,11 +52,9 @@ Vagrant.configure("2") do |config|
         vb.cpus = srv[:cpus]
       end
       node.vm.provision "shell",
-      
-      echo: "Copying public key to managed node #{srv[:name]}...",
-      path: "scripts/deploy-public-key.sh",
-      echo: "Provisioning managed node #{srv[:name]} complete."
-    end
+        path: "scripts/deploy-public-key.sh",
+        privileged:false
+      end
   end
 
    config.vm.define "ansible-controller" do |controller|
