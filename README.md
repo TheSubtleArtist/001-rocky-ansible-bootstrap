@@ -54,9 +54,12 @@ The project focuses on foundational Linux administration, SSH-based management, 
 
 ## Project Architecture
 
+
 ## Build and Validation Workflow
 
-This workflow explains how to build the lab and validate each major capability. The goal is to prove that the local Vagrant environment, VirtualBox virtual machines, private networking, Ansible controller bootstrap, and Ansible inventory are working as expected.
+This workflow explains how to build the lab and validate each major capability. The goal is to prove that the local Vagrant environment, VirtualBox virtual machines, private networking, Ansible controller bootstrap, SSH key deployment, Ansible inventory, and Ansible connectivity are working as expected.
+
+The lab uses a controller-first workflow. The Ansible controller is started first. The managed node is defined in the `Vagrantfile`, but it is not started automatically. This allows the managed node to remain available for testing without being created or started before it is needed.
 
 ### 1. Validate the Vagrantfile
 
@@ -74,39 +77,49 @@ Vagrantfile validated successfully.
 
 This confirms that the Vagrant configuration is syntactically valid before any VM changes are made.
 
-### 2. Start the lab environment
+### 2. Start the Ansible controller
 
-Create and start the Rocky Linux virtual machines.
+Start the Ansible controller first.
 
 ```powershell
-vagrant up
+vagrant up ansible-controller
 ```
 
-This should create the following lab systems:
+This should create and start the controller VM only.
 
-| VM Name            | Role                 |    Private IP | Resources           |
-| ------------------ | -------------------- | ------------: | ------------------- |
+| VM Name            | Role                 | Private IP    | Resources           |
+| ------------------ | -------------------- | ------------- | ------------------- |
 | ansible-controller | Ansible control node | 192.168.56.10 | 2 CPU / 2048 MB RAM |
-| managed-node-01    | Ansible managed node | 192.168.56.11 | 1 CPU / 1024 MB RAM |
 
-Successful completion confirms that Vagrant and VirtualBox can create both virtual machines.
+During this step, Vagrant should also generate the local lab SSH key pair if it does not already exist:
 
-### 3. Confirm VM status
+```text
+vagrant/.ssh/ansible_lab
+vagrant/.ssh/ansible_lab.pub
+```
 
-Verify that both machines are running.
+The controller provisioning process should install Ansible and place the generated private key where the `vagrant` user can use it:
+
+```text
+/home/vagrant/.ssh/ansible_lab
+```
+
+### 3. Confirm controller status
+
+Verify the current VM state.
 
 ```powershell
 vagrant status
 ```
 
-Expected result:
+Expected result after starting only the controller:
 
 ```text
 ansible-controller    running
-managed-node-01       running
+managed-node-01       not created
 ```
 
-This confirms that both virtual machines exist and are active.
+If the managed node was created during an earlier test, its status may show as `poweroff` instead of `not created`. The important point is that the managed node should not be running yet.
 
 ### 4. Access the Ansible controller
 
@@ -128,7 +141,56 @@ ansible --version
 
 Successful output confirms that the controller bootstrap script completed and Ansible is available to the `vagrant` user.
 
-### 6. Validate private network connectivity
+### 6. Validate controller private key deployment
+
+From inside the controller VM, confirm that the generated lab private key exists and has restrictive permissions.
+
+```bash
+ls -l /home/vagrant/.ssh/ansible_lab
+```
+
+Expected result should show permissions similar to:
+
+```text
+-rw-------. 1 vagrant vagrant ... /home/vagrant/.ssh/ansible_lab
+```
+
+This confirms that the controller has the private key required to connect to the managed node.
+
+### 7. Start the managed node when ready to test
+
+Start the managed node explicitly.
+
+```powershell
+vagrant up managed-node-01
+```
+
+This should create and start the managed node.
+
+| VM Name         | Role                 | Private IP    | Resources           |
+| --------------- | -------------------- | ------------- | ------------------- |
+| managed-node-01 | Ansible managed node | 192.168.56.11 | 1 CPU / 1024 MB RAM |
+
+During this step, the managed-node provisioning process should install the generated lab public key into the `vagrant` user's `authorized_keys` file.
+
+### 8. Confirm full lab status
+
+Verify that both systems are running.
+
+```powershell
+vagrant status
+```
+
+Expected result:
+
+```text
+ansible-controller    running
+managed-node-01       running
+```
+
+This confirms that both virtual machines exist and are active.
+
+### 9. Validate private network connectivity
 
 From inside the controller VM, test connectivity to the managed node.
 
@@ -144,7 +206,7 @@ Expected result:
 
 This confirms that the private host-only network between the controller and managed node is working.
 
-### 7. Validate Ansible inventory
+### 10. Validate Ansible inventory
 
 From inside the controller VM, confirm that Ansible can read the inventory file.
 
@@ -154,7 +216,7 @@ ansible-inventory -i /vagrant/ansible/inventory-001.ini --list
 
 Successful output confirms that the inventory file is valid and that Ansible can parse the managed node definition.
 
-### 8. Test Ansible communication with the managed node
+### 11. Test Ansible communication with the managed node
 
 Run an Ansible ping test against the managed node.
 
@@ -171,7 +233,17 @@ managed-node-01 | SUCCESS => {
 }
 ```
 
-This confirms that the Ansible controller can reach and manage the target node over SSH.
+This confirms that the Ansible controller can reach and manage the target node over SSH using the generated lab key pair.
+
+### 12. Optional baseline playbook validation
+
+Run the baseline playbook after basic Ansible connectivity succeeds.
+
+```bash
+ansible-playbook -i /vagrant/ansible/inventory-001.ini /vagrant/ansible/baseline-001.yml
+```
+
+Successful completion confirms that the controller can execute a playbook against the managed node.
 
 ## Security Notes
 

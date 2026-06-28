@@ -68,7 +68,6 @@ Vagrant.configure("2") do |config|
       controller.vm.provision "shell",
         path: "scripts/bootstrap-ansible-controller.sh",
         privileged: false
-      end
       controller.vm.provision "shell",
         path: "scripts/deploy-private-key.sh",
         privileged: false
