@@ -38,6 +38,7 @@ id_rsa
 id_rsa.pub
 id_ed25519
 id_ed25519.pub
+vagrant/.ssh/
 
 # OS-generated files
 .DS_Store

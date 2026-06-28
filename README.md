@@ -1,5 +1,15 @@
 # 001-rocky-ansible-bootstrap
 
+## Ongoing Work
+
+What is missing or incomplete:
+git 
+| Architecture         | Header exists, but empty | Add the two-VM model, roles, and private IP plan.                                                              |
+                                               |
+| Build Workflow       | Header exists, but empty | Add placeholder workflow: clone, validate tools, `vagrant up`, SSH, Ansible test.                              |
+| Validation Plan      | Header exists, but empty | Add expected validation checks before implementation.                                                          |
+                                                                  |
+
 ## Project Scope
 
 This project establishes the first repeatable local lab environment for the cloud security engineering portfolio. It uses Vagrant and Oracle VirtualBox to deploy two Rocky Linux 9 virtual machines: an Ansible controller and a managed node.
@@ -16,67 +26,164 @@ The project focuses on foundational Linux administration, SSH-based management, 
 - Run Ansible ad hoc commands and a baseline playbook.
 - Document build steps, validation evidence, and lessons learned.
 
-Yes. At this point, the README has the right foundation, but it is still missing several sections that should exist **before** we start adding the Vagrantfile.
+## Dependencies
 
-What is already good:
-
-The project scope is clear and correctly frames this as the first repeatable local lab environment using Vagrant, VirtualBox, and two Rocky Linux 9 VMs. It also correctly identifies the focus areas: Linux administration, SSH management, private networking, Ansible inventory, baseline playbooks, and validation evidence.
-
-The initial objectives are also strong. They describe the actual technical milestones without overpromising STIG, Kubernetes, Terraform, AWS, or application deployment.
-
-What is missing or incomplete:
-
-| Section              |                   Status | Recommendation                                                                                                 |
-| -------------------- | -----------------------: | -------------------------------------------------------------------------------------------------------------- |
-| Repository Structure | Header exists, but empty | Add planned folders and their purpose.                                                                         |
-| Architecture         | Header exists, but empty | Add the two-VM model, roles, and private IP plan.                                                              |
-| Prerequisites        | Header exists, but empty | Add Windows 11, VirtualBox, Vagrant, Git, and PowerShell.                                                      |
-| Build Workflow       | Header exists, but empty | Add placeholder workflow: clone, validate tools, `vagrant up`, SSH, Ansible test.                              |
-| Validation Plan      | Header exists, but empty | Add expected validation checks before implementation.                                                          |
-| Out of Scope         |                  Missing | Important. Prevents scope creep.                                                                               |
-| Security Notes       |                  Missing | Important. Say full STIG hardening is not included yet, but Rocky/RHEL-family hardening is a future direction. |
-| Learning Objectives  |                  Missing | Important for portfolio value. Explain what skill this repo proves.                                            |
-| Current Status       |                  Missing | Useful while the repo is early and incomplete.                                                                 |
-| License / Use        |                  Missing | Not urgent yet, but should eventually exist.                                                                   |
-
-My blunt opinion: **the README is good enough as a project seed, but not yet good enough as a professional portfolio README.** That is fine because we are early. But before we write much code, we should add the missing scaffolding so the repo tells a reviewer where it is going.
-
-The next README update should add this kind of structure:
-
-````markdown
-## Current Status
-
-This repository is in the initial planning and scaffolding stage. The Vagrant and Ansible configuration files have not yet been added.
-
+- Windows 11  
+- VirtualBox 7.2.6
+- Vagrant
+- Visual Studio Code  
+- Updated `Guest Additions`
+- Git  
+  
 ## Repository Structure
 
-```text
-.
+001-ROCKY-ANSIBLE-BOOTSTRAP
 ├── README.md
 ├── .gitignore
 ├── Vagrantfile
 ├── ansible/
-│   ├── inventory.ini
-│   └── playbooks/
-│       └── baseline.yml
+│   ├── project-001.ini
+│   └── baseline-001.yml
 ├── docs/
 │   ├── architecture/
 │   ├── decisions/
 │   ├── validation/
 │   └── lessons-learned/
 └── evidence/
-````
 
-## Architecture
+## Project Architecture
 
-This lab will deploy two Rocky Linux 9 virtual machines:
+## Build and Validation Workflow
 
-| Hostname           | Role         | Purpose                                    |
-| ------------------ | ------------ | ------------------------------------------ |
-| ansible-controller | Control node | Runs Ansible and manages the lab node      |
-| managed-node-01    | Managed node | Receives configuration from the controller |
+This workflow explains how to build the lab and validate each major capability. The goal is to prove that the local Vagrant environment, VirtualBox virtual machines, private networking, Ansible controller bootstrap, and Ansible inventory are working as expected.
 
-Both systems will use NAT for internet access and a private host-only network for lab communication.
+### 1. Validate the Vagrantfile
+
+Run this command from the repository root before creating or modifying virtual machines.
+
+```powershell
+vagrant validate
+```
+
+Expected result:
+
+```text
+Vagrantfile validated successfully.
+```
+
+This confirms that the Vagrant configuration is syntactically valid before any VM changes are made.
+
+### 2. Start the lab environment
+
+Create and start the Rocky Linux virtual machines.
+
+```powershell
+vagrant up
+```
+
+This should create the following lab systems:
+
+| VM Name            | Role                 |    Private IP | Resources           |
+| ------------------ | -------------------- | ------------: | ------------------- |
+| ansible-controller | Ansible control node | 192.168.56.10 | 2 CPU / 2048 MB RAM |
+| managed-node-01    | Ansible managed node | 192.168.56.11 | 1 CPU / 1024 MB RAM |
+
+Successful completion confirms that Vagrant and VirtualBox can create both virtual machines.
+
+### 3. Confirm VM status
+
+Verify that both machines are running.
+
+```powershell
+vagrant status
+```
+
+Expected result:
+
+```text
+ansible-controller    running
+managed-node-01       running
+```
+
+This confirms that both virtual machines exist and are active.
+
+### 4. Access the Ansible controller
+
+Connect to the controller VM.
+
+```powershell
+vagrant ssh ansible-controller
+```
+
+Successful login confirms that the controller VM is reachable through Vagrant-managed SSH.
+
+### 5. Validate Ansible controller bootstrap
+
+From inside the controller VM, confirm that Ansible is installed.
+
+```bash
+ansible --version
+```
+
+Successful output confirms that the controller bootstrap script completed and Ansible is available to the `vagrant` user.
+
+### 6. Validate private network connectivity
+
+From inside the controller VM, test connectivity to the managed node.
+
+```bash
+ping -c 4 192.168.56.11
+```
+
+Expected result:
+
+```text
+4 packets transmitted, 4 received, 0% packet loss
+```
+
+This confirms that the private host-only network between the controller and managed node is working.
+
+### 7. Validate Ansible inventory
+
+From inside the controller VM, confirm that Ansible can read the inventory file.
+
+```bash
+ansible-inventory -i /vagrant/ansible/project-001.ini --list
+```
+
+Successful output confirms that the inventory file is valid and that Ansible can parse the managed node definition.
+
+### 8. Test Ansible communication with the managed node
+
+Run an Ansible ping test against the managed node.
+
+```bash
+ansible managed -i /vagrant/ansible/project-001.ini -m ping
+```
+
+Expected result:
+
+```text
+managed-node-01 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+```
+
+This confirms that the Ansible controller can reach and manage the target node over SSH.
+
+### 9. Capture validation evidence
+
+As the project matures, record successful validation output in the `evidence/` directory.
+
+Evidence may include:
+
+* command output copied into markdown files
+* screenshots of successful validation commands
+* notes explaining errors encountered and how they were resolved
+* final confirmation that the lab can be rebuilt from a clean state
+
+The validation evidence should show that the repository is not just documented, but actually repeatable.
 
 ## Security Notes
 

@@ -6,7 +6,29 @@
 #############
 
 BOX_IMAGE="generic/rocky9"
-# HOSTONLY_NAME="VirtualBox Host-Only Ethernet Adapter"
+
+###################
+# KEY GENERATION  #
+# #################
+
+# provides utilities for copying, moving, deleting, and creating files and directories
+require 'fileutils'
+
+SSH_KEY_PATH = File.join(__dir__, "vagrant", ".ssh")
+SSH_KEY_PRIVATE = File.join(SSH_KEY_PATH, "ansible_lab")
+SSH_KEY_PUBLIC = "#{SSH_KEY_PRIVATE}.pub"
+
+FileUtils.mkdir(SSH_KEY_PATH)
+
+unless File.exist?(SSH_KEY_PRIVATE)
+    system(
+      "ssh-keygen",
+      "-t", "ed25519",
+      "-f", SSH_KEY_PRIVATE,
+      "-N", "",
+      "-C", "vagrant-ansible-lab"
+    )  
+end
 
 Vagrant.configure("2") do |config|
 
@@ -25,12 +47,20 @@ Vagrant.configure("2") do |config|
       node.vm.hostname = srv[:name]
       node.vm.network "private_network", ip: srv[:ip]
       node.vm.provider "virtualbox" do |vb|
-                vb.name = srv[:name]
-                vb.memory = srv[:memory]
-                vb.cpus = srv[:cpus]
+        vb.name = srv[:name]
+        vb.memory = srv[:memory]
+        vb.cpus = srv[:cpus]
       end
       node.vm.provision "shell", inline: <<-SHELL
-              echo "Managed node shell provisioning hook executed"
+        mkdir -p /home/vagrant/.ssh
+        chmod 700 /home/vagrant/.ssh
+        echo "Copying public key to managed node"
+        # Authorize the generated lab public key so the Ansible controller can SSH into this managed node as the vagrant user.
+        grep -qxF "#{File.read(SSH_KEY_PUBLIC).strip}" /home/vagrant/.ssh/authorized_keys || \
+        echo "#{File.read(SSH_KEY_PUBLIC).strip}" >> /home/vagrant/.ssh/authorized_keys
+        chmod 600 /home/vagrant/.ssh/authorized_keys
+        chown -R vagrant:vagrant /home/vagrant/.ssh
+        echo "Managed node shell provisioning hook executed"
       SHELL
     end
   end
@@ -43,9 +73,9 @@ Vagrant.configure("2") do |config|
                 vb.memory = 2048
                 vb.cpus = 2
       end
-      controller.vm.provision "shell", inline: <<-SHELL
-              echo "Ansible Controller shell provisioning hook executed"
-      SHELL
+      controller.vm.provision "shell",
+        path: "scripts/bootstrap-ansible-controller.sh",
+        privileged: false
     end
 
 end
