@@ -27,33 +27,33 @@ The project focuses on foundational Linux administration, SSH-based management, 
   
 ## Repository Structure
 
-001-ROCKY-ANSIBLE-BOOTSTRAP
-├── ansible/
-│   ├── baseline-001.yml
-│   ├── inventory-001.ini
-│   └── validate-001.yml
-├── evidence/
-│   └── validation-001.output.txt
-├── scripts/
-│   ├── bootstrap-ansible-controller.sh
-│   ├── deploy-private-key.sh
-│   ├── deploy-public-key.sh
-│   └── validation.sh
-├── vagrant/.ssh
-│   ├── ansible_lab
-│   └── ansible_lab.pub
-├── README.md
-├── .gitignore
-└── Vagrantfile
+001-ROCKY-ANSIBLE-BOOTSTRAP  
+├── ansible/  
+│   ├── baseline-001.yml  
+│   ├── inventory-001.ini  
+│   └── validate-001.yml  
+├── evidence/  
+│   └── validation-001.output.txt  
+├── scripts/  
+│   ├── bootstrap-ansible-controller.sh  
+│   ├── deploy-private-key.sh  
+│   ├── deploy-public-key.sh  
+│   └── validation.sh  
+├── vagrant/.ssh  
+│   ├── ansible_lab  
+│   └── ansible_lab.pub  
+├── README.md  
+├── .gitignore  
+└── Vagrantfile  
 
 ## Project Architecture
 
-Windows 11 Host
-└── Vagrant + VirtualBox
-    ├── ansible-controller
-    │   └── 192.168.56.10
-    └── managed-node-01
-        └── 192.168.56.11
+Windows 11 Host  
+└── Vagrant + VirtualBox  
+    ├── ansible-controller  
+    │   └── 192.168.56.10  
+    └── managed-node-01  
+        └── 192.168.56.11  
 
 ansible-controller → SSH / Ansible → managed-node-01
 
@@ -268,5 +268,5 @@ The validation script runs ansible/validate-001.yml and captures the output in e
 
 ## Security Notes
 
-This project does not implement hardening.
+The project intentionallly leaves out all hardening.
 
